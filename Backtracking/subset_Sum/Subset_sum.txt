@@ -1,0 +1,222 @@
+Experiment 13
+Sum of Subsets Problem using Dynamic Programming and Backtracking
+
+Aim:
+To determine whether one or more subsets of a given set of positive integers can produce a required target sum, and to list all valid subsets whose sum is equal to the target.
+
+Problem Statement:
+Given a set of n positive integers and a target sum, find all possible subsets whose elements add up exactly to the target. If no such subset exists, report that no subset was found.
+
+Theory:
+The Sum of Subsets problem is a classic combinatorial problem in which the objective is to select some elements from a given set so that their sum is equal to a specified target value. Each element can either be included in the current subset or excluded from it. Because of this include/exclude decision at every element, the problem naturally forms a state-space tree and can be solved using backtracking.
+
+In this implementation, dynamic programming is also used to check whether a target sum is possible. A DP table is built where:
+
+dp[i][s] = true if a sum s can be formed using the first i elements of the set.
+dp[i][s] = false otherwise.
+
+The first column dp[i][0] is always true because a sum of 0 can be formed by choosing the empty subset. For every element, the algorithm checks two possibilities:
+
+1. Exclude the current element and keep the previous result.
+2. Include the current element if it does not exceed the current required sum.
+
+Recurrence Relation:
+If the current element is set[i - 1], then:
+
+dp[i][s] = dp[i - 1][s] OR dp[i - 1][s - set[i - 1]]
+
+This relation is used only when set[i - 1] <= s.
+
+If set[i - 1] > s, then:
+
+dp[i][s] = dp[i - 1][s]
+
+After constructing the DP table, the value dp[n][target] tells whether at least one subset exists. Backtracking is then used to list all actual subsets by recursively including or excluding each element.
+
+Example:
+Consider the set:
+{ 2, 4, 6, 8 }
+
+Target sum = 10
+
+The algorithm checks whether 10 can be formed using the elements of the set.
+
+Possible combinations:
+2 + 8 = 10
+4 + 6 = 10
+
+Therefore, two valid subsets exist:
+{ 2, 8 }
+{ 4, 6 }
+
+The DP table confirms that dp[4][10] is true, meaning that a subset with target sum 10 exists using the first 4 elements. Backtracking then identifies and prints the actual subsets.
+
+Time and Space Complexity:
+Aspect                  Complexity
+DP Time Complexity      O(n * target)
+Subset Listing Time     O(2^n)
+Space Complexity        O(n * target)
+Recursion Stack Space   O(n)
+
+Algorithm:
+1. Sort the input set.
+2. Create a DP table of size (n + 1) x (target + 1).
+3. Initialize dp[i][0] = true for all i because sum 0 is always possible.
+4. Initialize all other cells as false.
+5. For each element i from 1 to n:
+   For each sum s from 1 to target:
+   - Exclude the current element: dp[i - 1][s]
+   - Include the current element if possible: dp[i - 1][s - set[i - 1]]
+   - Store true if either condition is true.
+6. Use backtracking to generate all subsets:
+   - Include the current element and move to the next index.
+   - Exclude the current element and move to the next index.
+   - If current sum becomes equal to target, store the subset.
+7. Print all valid subsets if they exist.
+8. Print whether the subset sum exists.
+
+Pseudocode:
+SUBSET-SUM(set, target):
+    sort(set)
+    n <- size of set
+    create dp[n + 1][target + 1] and initialize with false
+
+    for i <- 0 to n do
+        dp[i][0] <- true
+
+    for i <- 1 to n do
+        for s <- 1 to target do
+            excludeElement <- dp[i - 1][s]
+            includeElement <- false
+
+            if set[i - 1] <= s then
+                includeElement <- dp[i - 1][s - set[i - 1]]
+
+            dp[i][s] <- excludeElement OR includeElement
+
+    BACKTRACK(index, currentSum, currentSubset):
+        if currentSum = target then
+            print currentSubset
+            return
+
+        if index = n OR currentSum > target then
+            return
+
+        include set[index]
+        BACKTRACK(index + 1, currentSum + set[index], currentSubset)
+
+        exclude set[index]
+        BACKTRACK(index + 1, currentSum, currentSubset)
+
+    return dp[n][target]
+
+Input:
+Using 5 predefined test cases with different sets and target sums.
+
+Test Cases:
+
+Test Case 1 (Normal Case)
+Input:
+Set = { 5, 10, 12, 13, 15, 18 }
+Target = 10
+
+T/F DP Table:
+| i/S | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|-----|---|---|---|---|---|---|---|---|---|---|----|
+| 0 | T | F | F | F | F | F | F | F | F | F | F |
+| 1 | T | F | F | F | F | T | F | F | F | F | F |
+| 2 | T | F | F | F | F | T | F | F | F | F | T |
+| 3 | T | F | F | F | F | T | F | F | F | F | T |
+| 4 | T | F | F | F | F | T | F | F | F | F | T |
+| 5 | T | F | F | F | F | T | F | F | F | F | T |
+| 6 | T | F | F | F | F | T | F | F | F | F | T |
+
+Output:
+Total Subsets Found: 1
+{ 10 }
+Subset Sum Exists: Yes
+
+Test Case 2 (Small Input Case)
+Input:
+Set = { 2, 4, 6, 8 }
+Target = 10
+
+T/F DP Table:
+| i/S | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|-----|---|---|---|---|---|---|---|---|---|---|----|
+| 0 | T | F | F | F | F | F | F | F | F | F | F |
+| 1 | T | F | T | F | F | F | F | F | F | F | F |
+| 2 | T | F | T | F | T | F | T | F | F | F | F |
+| 3 | T | F | T | F | T | F | T | F | T | F | T |
+| 4 | T | F | T | F | T | F | T | F | T | F | T |
+
+Output:
+Total Subsets Found: 2
+{ 2 8 }
+{ 4 6 }
+Subset Sum Exists: Yes
+
+Test Case 3 (No Solution Case)
+Input:
+Set = { 3, 7, 9 }
+Target = 5
+
+T/F DP Table:
+| i/S | 0 | 1 | 2 | 3 | 4 | 5 |
+|-----|---|---|---|---|---|---|
+| 0 | T | F | F | F | F | F |
+| 1 | T | F | F | T | F | F |
+| 2 | T | F | F | T | F | F |
+| 3 | T | F | F | T | F | F |
+
+Output:
+No subset found
+Subset Sum Exists: No
+
+Test Case 4 (Multiple Solution Case)
+Input:
+Set = { 1, 2, 3, 4, 5 }
+Target = 5
+
+T/F DP Table:
+| i/S | 0 | 1 | 2 | 3 | 4 | 5 |
+|-----|---|---|---|---|---|---|
+| 0 | T | F | F | F | F | F |
+| 1 | T | T | F | F | F | F |
+| 2 | T | T | T | T | F | F |
+| 3 | T | T | T | T | T | T |
+| 4 | T | T | T | T | T | T |
+| 5 | T | T | T | T | T | T |
+
+Output:
+Total Subsets Found: 3
+{ 5 }
+{ 1 4 }
+{ 2 3 }
+Subset Sum Exists: Yes
+
+Test Case 5 (Special Case with Duplicate Elements)
+Input:
+Set = { 1, 1, 2, 3 }
+Target = 4
+
+T/F DP Table:
+| i/S | 0 | 1 | 2 | 3 | 4 |
+|-----|---|---|---|---|---|
+| 0 | T | F | F | F | F |
+| 1 | T | T | F | F | F |
+| 2 | T | T | T | F | F |
+| 3 | T | T | T | T | T |
+| 4 | T | T | T | T | T |
+
+Output:
+Total Subsets Found: 2
+{ 1 3 }
+{ 1 1 2 }
+Subset Sum Exists: Yes
+
+Result:
+All 5 predefined test cases were executed successfully. The program correctly built the DP table for each case, determined whether the target sum was possible, and printed all subsets whose sum was equal to the target.
+
+Conclusion:
+The Sum of Subsets problem was successfully solved using a combination of dynamic programming and backtracking. The dynamic programming table efficiently verified whether the target sum could be formed from the given set, while the backtracking procedure generated the actual subsets. The test cases covered normal input, small input, no-solution input, multiple-solution input, and duplicate-element input. The results confirm that the implementation correctly identifies valid subsets and reports when no valid subset exists.
